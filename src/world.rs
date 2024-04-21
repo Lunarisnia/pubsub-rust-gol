@@ -17,6 +17,19 @@ pub enum Direction {
     LeftUp,
 }
 
+impl Direction {
+    const VALUES: [Self; 8] = [
+        Self::Up,
+        Self::UpRight,
+        Self::Right,
+        Self::RightDown,
+        Self::Down,
+        Self::DownLeft,
+        Self::Left,
+        Self::LeftUp,
+    ];
+}
+
 impl World {
     pub fn init(width: u32, height: u32) -> World {
         let mut new_world = World {
@@ -138,6 +151,15 @@ impl World {
                     None => None,
                 }
             }
+        }
+    }
+
+    pub fn render(&self) {
+        for (i, cell) in self.cells.iter().enumerate() {
+            if i % self.width as usize == 0 {
+                println!();
+            }
+            print!(" {} ", if cell.status { "🟩" } else { "⬛" });
         }
     }
 }
