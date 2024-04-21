@@ -17,6 +17,7 @@ pub enum Direction {
     LeftUp,
 }
 
+
 impl Direction {
     const VALUES: [Self; 8] = [
         Self::Up,
@@ -154,12 +155,53 @@ impl World {
         }
     }
 
+    fn calculate(&self) -> Vec<(usize, bool)> {
+        let mut update_list: Vec<(usize, bool)> = Vec::new();
+        for (i, cell) in self.cells.iter().enumerate() {
+            let mut active_neighbour_count = 0;
+
+            for direction in Direction::VALUES {
+                match self.get_cell_neighbour(&cell, direction) {
+                    Some(c) => {
+                        if c.status {
+                            active_neighbour_count += 1
+                        }
+                    }
+                    None => ()
+                };
+            }
+
+            if cell.status {
+                if active_neighbour_count < 2 || active_neighbour_count > 3 {
+                    update_list.push((i, false));
+                } else if active_neighbour_count == 2 || active_neighbour_count == 3 {
+                    update_list.push((i, true));
+                }
+            } else {
+                if active_neighbour_count == 3 {
+                    update_list.push((i, true));
+                }
+            }
+        }
+
+        update_list
+    }
+
+    pub fn step(&mut self) {
+        let update_list: Vec<(usize, bool)> = self.calculate();
+        for (coordinate, new_status) in update_list {
+            self.cells[coordinate].status = new_status;
+        }
+    }
+
     pub fn render(&self) {
         for (i, cell) in self.cells.iter().enumerate() {
             if i % self.width as usize == 0 {
                 println!();
             }
-            print!(" {} ", if cell.status { "🟩" } else { "⬛" });
+            print!(" {} ", if cell.status { "0" } else { "." });
+            // print!(" {} ", cell.status);
         }
+        println!();
     }
 }
